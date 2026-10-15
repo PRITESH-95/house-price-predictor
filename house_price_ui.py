@@ -670,19 +670,24 @@ class Handler(BaseHTTPRequestHandler):
 
 
 server = None
-for port in range(8000, 8010):
-    try:
-        server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-        break
-    except OSError:
-        continue
-if server is None:
-    raise SystemExit("Ports 8000-8009 are all busy.")
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
 
-url = f"http://127.0.0.1:{port}"
-print(f"\nReady: {url}   (Ctrl+C to stop)")
-webbrowser.open(url)
-try:
-    server.serve_forever()
-except KeyboardInterrupt:
-    print("\nStopped.")
+    server = ThreadingHTTPServer(
+        ("0.0.0.0", port),
+        Handler
+    )
+
+    url = f"http://localhost:{port}"
+
+    print(f"Server running on port {port}")
+
+    if not os.environ.get("PORT"):
+        webbrowser.open(url)
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nServer stopped.")
+    finally:
+        server.server_close()
